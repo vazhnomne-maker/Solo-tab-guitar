@@ -1,6 +1,0 @@
-{
-  "name": "Play Your Solo - Tabs & Guitar Scales",
-  "description": "Интерактивный тренажёр гитарного соло с пентатоникой, боксами CAGED, микрофонным тюнером и табулатурой в реальном времени.",
-  "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
-}
