@@ -1,0 +1,1123 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Play Your Solo - Tabs & Guitar Scales</title>
+<meta name="description" content="Интерактивный тренажёр гитарного соло с пентатоникой, боксами CAGED, микрофонным тюнером и табулатурой в реальном времени." />
+<meta property="og:title" content="Play Your Solo - Tabs & Guitar Scales" />
+<meta property="og:description" content="Интерактивный тренажёр гитарного соло с пентатоникой, боксами CAGED, микрофонным тюнером и табулатурой в реальном времени." />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary_large_image" />
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj4KICA8cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgcng9IjIyIiBmaWxsPSIjMDAwIi8+CiAgPHBhdGggZmlsbD0iI2ZmZiIgZD0iTTcwLjUgMjQuMmMxLjktLjUgMy44IDEgMy44IDN2MzYuMWMwIDUuMy00LjYgOS41LTEwLjIgOS41cy0xMC4yLTQuMy0xMC4yLTkuNSA0LjYtOS41IDEwLjItOS41YzEuNSAwIDMgLjMgNC4yLjlWNDEuNEw0MSA0OC45djIwLjRjMCA1LjMtNC42IDkuNS0xMC4yIDkuNVMyMC42IDc0LjYgMjAuNiA2OS4zczQuNi05LjUgMTAuMi05LjVjMS41IDAgMyAuMyA0LjIuOVYzNy43YzAtMS44IDEuMi0zLjQgMy0zLjh6Ii8+Cjwvc3ZnPgo=">
+<style>
+  :root{
+    --bg:#13151a;--panel:#1b1e26;--panel-2:#232732;--line:#2e3340;--line-bright:#3c4254;
+    --ink:#e8eaf0;--ink-dim:#9aa0b0;--ink-faint:#646b7d;
+    --minor:#3d8ad8;     /* minor pentatonic - blue */
+    --major:#d8483f;     /* major pentatonic - red */
+    --diatonic:#566074;  /* extra scale notes - muted slate */
+    --blue:#41b9a8;      /* blue note - teal */
+    --rootring:#ffffff;  /* tonic outline */
+    --glow:#3fb98a;--glowbend:#d9a441;
+    --radius:10px;--radius-sm:6px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--bg);color:var(--ink);font-family:'Helvetica Neue',Arial,sans-serif;-webkit-font-smoothing:antialiased}
+  body{min-height:100vh;padding:0 0 56px;transition:padding-bottom .25s ease}
+  body.tabs-open{padding-bottom:340px}
+  .mono{font-family:'SF Mono','Roboto Mono',Menlo,Consolas,monospace}
+  header{border-bottom:1px solid var(--line);padding:22px 28px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+  .logo{font-size:23px;font-weight:700;letter-spacing:-0.02em}
+  .header-actions{display:flex;gap:8px;align-items:center}
+  .header-actions .tg{display:inline-flex;align-items:center;gap:6px;
+                      color:var(--ink);background:var(--panel-2);border-color:var(--line-bright)}
+  .header-actions .tg:hover{background:var(--line);border-color:var(--ink-faint)}
+  .header-actions .tg svg{flex:none;display:block}
+  @media (max-width:600px){
+    header{padding:16px 18px}
+    .header-actions .txt{display:none}
+    .header-actions .tg{padding:9px;gap:0}
+  }
+  .wrap{max-width:1240px;margin:0 auto;padding:0 28px}
+
+  .controls{display:flex;gap:30px;flex-wrap:wrap;align-items:flex-start;padding:26px 0 22px;border-bottom:1px solid var(--line)}
+  .field{display:flex;flex-direction:column;gap:9px}
+  .field > label{font-size:11px;text-transform:uppercase;letter-spacing:0.12em;color:var(--ink-faint);font-weight:600}
+  .row{display:flex;gap:8px;flex-wrap:wrap}
+  .tg{background:var(--panel);border:1px solid var(--line);color:var(--ink-dim);padding:9px 15px;font-size:13px;cursor:pointer;border-radius:var(--radius-sm);font-weight:500;transition:background .12s,color .12s,border-color .12s;display:flex;align-items:center;gap:7px}
+  .tg:hover{color:var(--ink);border-color:var(--line-bright)}
+  .tg .sw{width:9px;height:9px;border-radius:50%;background:currentColor;opacity:.35;transition:opacity .12s}
+  .tg.on{color:var(--ink);background:var(--panel-2)}.tg.on .sw{opacity:1}
+  .tg.on.min{border-color:var(--minor)}.tg.on.min .sw{color:var(--minor)}
+  .tg.on.maj{border-color:var(--major)}.tg.on.maj .sw{color:var(--major)}
+  .tg.on.fl{border-color:var(--diatonic)}.tg.on.fl .sw{color:var(--diatonic)}
+  .tg.on.bn{border-color:var(--blue)}.tg.on.bn .sw{color:var(--blue)}
+  .keys{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;max-width:690px}
+  .keys button{background:var(--panel);border:1px solid var(--line);color:var(--ink-dim);padding:9px 0;font-size:14px;cursor:pointer;border-radius:var(--radius-sm);transition:background .12s,color .12s,border-color .12s;font-weight:500}
+  .keys button:hover{color:var(--ink);border-color:var(--line-bright)}
+  .keys button.on{background:var(--panel-2);border-color:var(--ink-dim);color:var(--ink)}
+  .seg{display:inline-flex;align-self:flex-start;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius-sm);overflow:hidden}
+  .seg button{background:transparent;border:none;color:var(--ink-dim);padding:9px 14px;font-size:13px;cursor:pointer;font-weight:500;transition:background .12s,color .12s;border-right:1px solid var(--line)}
+  .seg button:last-child{border-right:none}
+  .seg button:hover{color:var(--ink)}
+  .seg button.on{background:var(--panel-2);color:var(--ink)}
+
+  .legend{display:flex;gap:18px;flex-wrap:wrap;padding:16px 0 0;font-size:12px;color:var(--ink-dim)}
+  .legend span{display:flex;align-items:center;gap:6px}
+  .legend i{width:12px;height:12px;border-radius:50%;display:inline-block}
+  .legend i.ring{box-shadow:inset 0 0 0 2px var(--rootring);background:var(--minor)}
+
+  .board-section{padding:22px 0}
+  .board-scroll{overflow-x:auto;padding-bottom:8px}
+  .fretboard{border:1px solid #3a2f22;border-radius:var(--radius);overflow:hidden}
+  #board{display:block}
+  .dot-grp{cursor:default}
+  .dot-grp circle.halo{opacity:0;transition:opacity .22s ease-out}
+  .dot-grp.lit circle.halo{opacity:1}
+  .dot-grp circle.body{transition:transform .22s ease-out}
+  .glow-c{opacity:0;transition:opacity .12s, cx .14s ease-out, cy .14s ease-out;filter:drop-shadow(0 0 8px rgba(63,185,138,.7))}
+  .glow-c.show{opacity:1}
+  .glow-c.bending{stroke:#d9a441 !important;filter:drop-shadow(0 0 8px rgba(217,164,65,.7))}
+  .glow-c.snap{transition:opacity .1s, cx .05s ease-out, cy .05s ease-out}
+  .dot-grp.lit .halo{filter:drop-shadow(0 0 7px rgba(63,185,138,.6))}
+
+  .mic-section{padding:16px 0 0;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  .mic-btn{background:var(--glow);border:none;color:#0c1410;font-weight:600;padding:11px 20px;border-radius:var(--radius-sm);cursor:pointer;font-size:14px;display:flex;align-items:center;gap:8px;transition:opacity .15s,background .15s}
+  .mic-btn:hover{opacity:.9}.mic-btn:disabled{opacity:.5;cursor:wait}
+  .mic-btn.live{background:var(--major)}
+  .mic-btn .pulse{width:8px;height:8px;border-radius:50%;background:currentColor}
+  .mic-btn.live .pulse{animation:pulse 1s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+  .now{display:flex;align-items:baseline;gap:14px}
+  .now .nb{font-size:34px;font-weight:700;line-height:1;min-width:54px}
+  .now .nb .oct{font-size:15px;color:var(--ink-dim);vertical-align:super}
+  .now .meta{font-size:13px;color:var(--ink-dim)}
+  .now .cents{font-weight:600}.now .cents.bend{color:var(--glowbend)}
+
+  .rec-badge{font-size:10px;padding:2px 6px;border-radius:4px;background:var(--major);color:#fff;font-weight:700;letter-spacing:0.04em;display:none}
+  .rec-badge.show{display:inline-block}
+
+  /* Табулатура — Выдвижная панель */
+  .tabs-drawer{
+    position:fixed;bottom:0;left:0;right:0;z-index:45;
+    background:var(--panel);border-top:1px solid var(--line-bright);
+    box-shadow:0 -10px 35px rgba(0,0,0,.65);
+    transform:translateY(105%);transition:transform .25s cubic-bezier(0.16,1,0.3,1);
+    display:flex;flex-direction:column;max-height:48vh;
+  }
+  .tabs-drawer.open{transform:translateY(0)}
+  .tabs-header{
+    padding:12px 24px;background:var(--panel-2);border-bottom:1px solid var(--line);
+    display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+  }
+  .tabs-title-group{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  .tabs-title{font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px;color:var(--ink);letter-spacing:-0.01em}
+  .tabs-status{
+    display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-dim);
+    padding:4px 10px;background:var(--panel);border:1px solid var(--line);border-radius:20px;
+  }
+  .tabs-status-dot{width:7px;height:7px;border-radius:50%;background:var(--ink-faint);transition:background .2s}
+  .tabs-status.recording{color:var(--ink);border-color:rgba(216,72,63,.5)}
+  .tabs-status.recording .tabs-status-dot{background:var(--major);box-shadow:0 0 8px var(--major);animation:pulse 1s infinite}
+  .tabs-stats{font-size:12px;color:var(--ink-dim)}
+  .tabs-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .tab-rec-dot{width:8px;height:8px;border-radius:50%;background:var(--major);opacity:.6;display:inline-block}
+  #btnTabRecord.recording{background:var(--major);color:#fff;border-color:var(--major)}
+  #btnTabRecord.recording .tab-rec-dot{background:#fff;opacity:1;animation:pulse 1s infinite}
+  .tabs-options{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-dim)}
+  .tabs-select{
+    background:var(--panel);border:1px solid var(--line);color:var(--ink);
+    padding:6px 9px;font-size:12px;border-radius:var(--radius-sm);cursor:pointer;outline:none;
+  }
+  .tabs-select:focus{border-color:var(--line-bright)}
+  .tabs-body{padding:14px 24px 16px;display:flex;flex-direction:column;flex:1;overflow:hidden;gap:8px}
+  .tabs-display-wrap{
+    background:#0b0d11;border:1px solid var(--line);border-radius:var(--radius-sm);
+    padding:14px 18px;overflow:auto;max-height:28vh;box-shadow:inset 0 2px 6px rgba(0,0,0,.5);
+  }
+  .tabs-display{color:#4ee49b;font-size:13.5px;line-height:1.45;margin:0;letter-spacing:0.04em}
+  .tabs-hint{display:flex;align-items:center;justify-content:space-between;font-size:12px;color:var(--ink-faint);gap:12px;flex-wrap:wrap}
+
+  .modal{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;padding:20px;
+         background:rgba(8,9,12,.72);opacity:0;visibility:hidden;transition:opacity .15s ease,visibility .15s}
+  .modal.open{opacity:1;visibility:visible}
+  .modal-box{position:relative;width:100%;max-width:420px;background:var(--panel);border:1px solid var(--line);
+             border-radius:var(--radius);padding:28px}
+  .modal h2{font-size:11px;text-transform:uppercase;letter-spacing:0.12em;color:var(--ink-faint);font-weight:600}
+  .modal p{margin:14px 0 20px;font-size:14px;line-height:1.55;color:var(--ink-dim)}
+  .modal-close{position:absolute;top:10px;right:10px;width:30px;height:30px;background:transparent;border:none;
+               color:var(--ink-faint);font-size:20px;line-height:1;cursor:pointer;border-radius:var(--radius-sm);transition:color .12s,background .12s}
+  .modal-close:hover{color:var(--ink);background:var(--panel-2)}
+  .btn-accent{display:inline-flex;align-items:center;justify-content:center;background:var(--glow);color:#0c1410;
+              border:none;padding:11px 20px;border-radius:var(--radius-sm);font-size:14px;font-weight:600;
+              text-decoration:none;cursor:pointer;transition:opacity .15s}
+  .btn-accent:hover{opacity:.9}
+  .modal .tg{text-decoration:none;display:inline-flex}
+  .alt{margin:12px 0 0;font-size:12px;color:var(--ink-dim);line-height:1.5}
+  .alt button{background:none;border:none;padding:0;font:inherit;color:var(--ink);cursor:pointer;
+              border-bottom:1px dashed var(--line-bright)}
+  .alt button:hover{color:var(--glow);border-bottom-color:var(--glow)}
+
+  @media (max-width:600px){
+    .tabs-header{padding:10px 14px;gap:8px}
+    .tabs-body{padding:10px 14px 14px}
+    .tabs-display-wrap{padding:10px 12px}
+    .tabs-display{font-size:11px}
+    .tabs-actions .txt{display:none}
+    .tabs-drawer{max-height:55vh}
+    body.tabs-open{padding-bottom:370px}
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">Play Your Solo</div>
+  <div class="header-actions">
+    <button class="tg" id="btn-tabs-toggle" aria-label="Открыть табулатуру">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M9 18V5l12-2v13"></path>
+        <circle cx="6" cy="18" r="3"></circle>
+        <circle cx="18" cy="16" r="3"></circle>
+      </svg>
+      <span class="txt">Табы</span>
+      <span class="rec-badge" id="recBadgeHeader">REC</span>
+    </button>
+    <button class="tg" id="btn-support" aria-label="Поддержать">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+      </svg><span class="txt">Поддержать</span>
+    </button>
+    <button class="tg" id="btn-feedback" aria-label="Поделиться фидбеком">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+      </svg><span class="txt">Поделиться фидбеком</span>
+    </button>
+  </div>
+</header>
+
+<div class="modal" id="modal-support" role="dialog" aria-modal="true" aria-labelledby="modal-support-title">
+  <div class="modal-box">
+    <button class="modal-close" data-close aria-label="Закрыть">×</button>
+    <h2 id="modal-support-title">Поддержать проект</h2>
+    <p>Привет! Это Даша, автор этого мини-проекта. Если он оказался полезен — я буду рада, если вы поддержите его любым донатом.</p>
+    <a class="btn-accent" href="https://www.tinkoff.ru/rm/r_xfwzeGQKAK.rSAUwSSfQy/kJA2Z88440" target="_blank" rel="noopener">Поддержать</a>
+    <p class="alt">или по номеру <button type="button" id="copyPhone">+7 995 155 23 20</button> (Дарья М.)</p>
+  </div>
+</div>
+
+<div class="modal" id="modal-feedback" role="dialog" aria-modal="true" aria-labelledby="modal-feedback-title">
+  <div class="modal-box">
+    <button class="modal-close" data-close aria-label="Закрыть">×</button>
+    <h2 id="modal-feedback-title">Поделиться фидбеком</h2>
+    <p>Нашли баг или есть идея, как улучшить проект? Напишите мне в Telegram, я буду рада любым идеям!</p>
+    <a class="tg" href="https://t.me/mar_dasha" target="_blank" rel="noopener">Написать в Telegram</a>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="controls">
+    <div class="field">
+      <label>Пентатоника</label>
+      <div class="row" id="scaleToggles">
+        <button class="tg min on" data-s="minor"><span class="sw"></span>Минорная</button>
+        <button class="tg maj" data-s="major"><span class="sw"></span>Мажорная</button>
+      </div>
+    </div>
+    <div class="field">
+      <label>Тоника</label>
+      <div class="keys" id="keyGrid"></div>
+    </div>
+    <div class="field">
+      <label>Дополнительно</label>
+      <div class="row">
+        <button class="tg fl" id="tgFull"><span class="sw"></span>Полная гамма</button>
+        <button class="tg bn" id="tgBlue"><span class="sw"></span>Блюзовая нота</button>
+      </div>
+    </div>
+    <div class="field">
+      <label>Боксы (CAGED) — можно несколько</label>
+      <div class="seg" id="boxCount">
+        <button data-n="1">1</button>
+        <button data-n="2">2</button>
+        <button data-n="3">3</button>
+        <button data-n="4">4</button>
+        <button data-n="5">5</button>
+        <button data-n="all" class="on">Все</button>
+      </div>
+    </div>
+    <div class="field">
+      <label>Подсветка с микрофона</label>
+      <div class="seg" id="hlMode">
+        <button data-h="note" class="on">Ноты</button>
+        <button data-h="bend">Бенды</button>
+      </div>
+      <div class="mic-section">
+        <button class="mic-btn" id="micBtn" disabled><span class="pulse"></span><span id="micLabel">Загрузка движка…</span></button>
+        <button class="tg" id="btn-mic-tabs" style="height:42px;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M9 18V5l12-2v13"></path>
+            <circle cx="6" cy="18" r="3"></circle>
+            <circle cx="18" cy="16" r="3"></circle>
+          </svg>
+          <span>Табы</span>
+          <span class="rec-badge" id="recBadgeMic">REC</span>
+        </button>
+        <div class="now">
+          <div class="nb" id="nowNote">—</div>
+          <div class="meta">
+            <span class="mono" id="nowFreq">— Hz</span> ·
+            <span class="cents mono" id="nowCents"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="legend" id="legend"></div>
+
+  <div class="board-section">
+    <div class="board-scroll">
+      <div class="fretboard" id="fretboard">
+        <svg id="board" xmlns="http://www.w3.org/2000/svg"></svg>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Выдвижная панель табулатуры -->
+<div class="tabs-drawer" id="tabsDrawer" role="region" aria-label="Панель табулатуры">
+  <div class="tabs-header">
+    <div class="tabs-title-group">
+      <div class="tabs-title">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 18V5l12-2v13"></path>
+          <circle cx="6" cy="18" r="3"></circle>
+          <circle cx="18" cy="16" r="3"></circle>
+        </svg>
+        <span>Табулатура</span>
+      </div>
+      <div class="tabs-status" id="tabsStatusBadge">
+        <span class="tabs-status-dot"></span>
+        <span id="tabsStatusText">Ожидание</span>
+      </div>
+      <div class="tabs-stats mono" id="tabsStats">0 нот</div>
+    </div>
+
+    <div class="tabs-actions">
+      <button class="tg" id="btnTabRecord" title="Начать или остановить запись табулатуры">
+        <span class="tab-rec-dot"></span>
+        <span id="tabRecordLabel">Начать запись</span>
+      </button>
+      <button class="tg" id="btnTabClear" title="Очистить табулатуру">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+        </svg>
+        <span class="txt">Очистить</span>
+      </button>
+      <button class="tg" id="btnTabCopy" title="Скопировать табулатуру в буфер обмена">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+        </svg>
+        <span class="txt" id="copyTabLabel">Копировать</span>
+      </button>
+      <button class="tg" id="btnTabDownloadGp" title="Скачать табулатуру в формате Guitar Pro (.gp)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+          <polyline points="7 10 12 15 17 10"></polyline>
+          <line x1="12" y1="15" x2="12" y2="3"></line>
+        </svg>
+        <span class="txt" id="downloadGpLabel">Скачать .gp</span>
+      </button>
+      <div class="tabs-options">
+        <label for="tabBarSelect">Такт:</label>
+        <select id="tabBarSelect" class="tabs-select mono">
+          <option value="8" selected>8 нот</option>
+          <option value="12">12 нот</option>
+          <option value="16">16 нот</option>
+          <option value="4">4 ноты</option>
+        </select>
+      </div>
+      <button class="modal-close" id="btnTabClose" title="Закрыть панель" aria-label="Закрыть" style="position:static;width:32px;height:32px;">×</button>
+    </div>
+  </div>
+
+  <div class="tabs-body">
+    <div class="tabs-display-wrap" id="tabsScrollWrap">
+      <pre class="tabs-display mono" id="tabsDisplay"></pre>
+    </div>
+    <div class="tabs-hint">
+      <span id="tabsHintText">Включите запись и играйте ноты на гитаре. Табулатура автоматически подбирает струны и лады.</span>
+      <span class="mono" id="tabsLiveNote" style="color:var(--glow);"></span>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  function open(m){ m.classList.add("open"); }
+  function closeAll(){
+    [].forEach.call(document.querySelectorAll(".modal.open"),function(m){m.classList.remove("open")});
+  }
+  document.getElementById("btn-support").onclick=function(){open(document.getElementById("modal-support"))};
+  document.getElementById("btn-feedback").onclick=function(){open(document.getElementById("modal-feedback"))};
+
+  [].forEach.call(document.querySelectorAll(".modal"),function(m){
+    m.addEventListener("click",function(e){
+      if(e.target===m || e.target.hasAttribute("data-close")) closeAll();
+    });
+  });
+  document.addEventListener("keydown",function(e){ if(e.key==="Escape") closeAll(); });
+
+  var phoneBtn=document.getElementById("copyPhone"), phoneTimer=null;
+  var phoneText=phoneBtn.textContent;
+  phoneBtn.onclick=function(){
+    navigator.clipboard.writeText("+79951552320").then(function(){
+      phoneBtn.textContent="Скопировано";
+      clearTimeout(phoneTimer);
+      phoneTimer=setTimeout(function(){phoneBtn.textContent=phoneText;},1500);
+    });
+  };
+})();
+</script>
+
+<script type="importmap">
+{
+  "imports": {
+    "pitchy": "https://esm.sh/pitchy@4",
+    "@coderline/alphatab": "https://cdn.jsdelivr.net/npm/@coderline/alphatab@1.9.0/dist/alphaTab.mjs"
+  }
+}
+</script>
+
+<script type="module">
+import { PitchDetector } from "pitchy";
+import * as alphaTab from "@coderline/alphatab";
+
+(function(){
+  "use strict";
+  var CHROMATIC=["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
+  var STRINGS=[
+    {name:"e",open:4,octave:4},{name:"B",open:11,octave:3},{name:"G",open:7,octave:3},
+    {name:"D",open:2,octave:3},{name:"A",open:9,octave:2},{name:"E",open:4,octave:2}
+  ];
+  var FRETS=20;
+  var INLAYS=[3,5,7,9,12,15,17,19];
+  var PENT={minor:[0,3,5,7,10],major:[0,2,4,7,9]};
+  var DIATONIC={minor:[0,2,3,5,7,8,10],major:[0,2,4,5,7,9,11]};
+  var BLUE={minor:6,major:3};
+  var BOX_SPANS=[[0,3],[2,5],[5,8],[7,10],[10,13]];
+  var MAJOR_BOX_SPANS=[[-1,3],[1,5],[4,8],[6,10],[9,13]];
+
+  var X0=52, FRETW=66, FRETW_MIN=40;
+  function computeFretW(){
+    var scroll=document.querySelector(".board-scroll");
+    var avail=scroll ? scroll.clientWidth : 1000;
+    var w=(avail - X0 - 34) / FRETS;
+    FRETW=Math.max(FRETW_MIN, Math.min(66, w));
+  }
+  function fretCenterX(f){ return f===0 ? X0-22 : X0 + (f-0.5)*FRETW; }
+  function fretWireX(f){ return X0 + f*FRETW; }
+
+  var state={
+    minor:true, major:false, rootPc:9,
+    full:false, blue:false,
+    boxes:[], hlMode:"note"
+  };
+
+  var keyGrid=document.getElementById("keyGrid");
+  CHROMATIC.forEach(function(n,i){
+    var b=document.createElement("button");
+    b.textContent=n;b.dataset.pc=i;
+    if(i===state.rootPc)b.classList.add("on");
+    b.onclick=function(){
+      state.rootPc=i;
+      [].forEach.call(keyGrid.children,function(c){c.classList.remove("on")});
+      b.classList.add("on"); render();
+    };
+    keyGrid.appendChild(b);
+  });
+
+  document.getElementById("scaleToggles").addEventListener("click",function(e){
+    var btn=e.target.closest("button"); if(!btn) return;
+    var s=btn.dataset.s, other=s==="minor"?"major":"minor";
+    if(state[s] && !state[other]) return;
+    state[s]=!state[s];
+    btn.classList.toggle("on",state[s]);
+    render();
+  });
+  document.getElementById("tgFull").onclick=function(){state.full=!state.full;this.classList.toggle("on",state.full);render();};
+  document.getElementById("tgBlue").onclick=function(){state.blue=!state.blue;this.classList.toggle("on",state.blue);render();};
+
+  document.getElementById("boxCount").addEventListener("click",function(e){
+    var btn=e.target.closest("button"); if(!btn) return;
+    var seg=this;
+    if(btn.dataset.n==="all"){
+      state.boxes=[];
+      [].forEach.call(seg.children,function(c){c.classList.remove("on")});
+      btn.classList.add("on");
+    } else {
+      var n=parseInt(btn.dataset.n,10)-1;
+      var i=state.boxes.indexOf(n);
+      if(i===-1) state.boxes.push(n); else state.boxes.splice(i,1);
+      btn.classList.toggle("on",state.boxes.indexOf(n)!==-1);
+      var allBtn=seg.querySelector('[data-n="all"]');
+      allBtn.classList.toggle("on",state.boxes.length===0);
+    }
+    render();
+  });
+  document.getElementById("hlMode").addEventListener("click",function(e){
+    var btn=e.target.closest("button"); if(!btn) return;
+    state.hlMode=btn.dataset.h;
+    [].forEach.call(this.children,function(c){c.classList.remove("on")});
+    btn.classList.add("on");
+    var glow=document.getElementById("glow");
+    glow.classList.toggle("snap",state.hlMode==="note");
+    glow.classList.remove("show","bending");
+    clearLitDots();
+  });
+
+  function pcInfo(pc){
+    var off=((pc-state.rootPc)%12+12)%12;
+    var inMin=state.minor && PENT.minor.indexOf(off)!==-1;
+    var inMaj=state.major && PENT.major.indexOf(off)!==-1;
+    var isRoot=off===0 && (state.minor||state.major);
+    var color=null;
+    if(inMin && inMaj) color="both";
+    else if(inMin) color="min";
+    else if(inMaj) color="maj";
+
+    if(color) return {color:color,root:isRoot};
+
+    if(state.blue){
+      if(state.minor && off===BLUE.minor) return {color:"blue",root:false};
+      if(state.major && off===BLUE.major) return {color:"blue",root:false};
+    }
+    if(state.full){
+      var inDiaMin=state.minor && DIATONIC.minor.indexOf(off)!==-1;
+      var inDiaMaj=state.major && DIATONIC.major.indexOf(off)!==-1;
+      if(inDiaMin||inDiaMaj) return {color:"diatonic",root:false};
+    }
+    return null;
+  }
+
+  function boxWindows(){
+    if(state.boxes.length===0) return null;
+    var rootFretLowE=((state.rootPc-STRINGS[5].open)%12+12)%12;
+    var spans = state.major ? MAJOR_BOX_SPANS : BOX_SPANS;
+    return state.boxes.slice().sort(function(a,b){return a-b;}).map(function(idx){
+      return {
+        lo:Math.max(0,rootFretLowE+spans[idx][0]),
+        hi:Math.min(FRETS,rootFretLowE+spans[idx][1])
+      };
+    });
+  }
+  function inAnyWindow(f,wins){
+    if(!wins) return true;
+    for(var i=0;i<wins.length;i++) if(f>=wins[i].lo && f<=wins[i].hi) return true;
+    return false;
+  }
+
+  var dotMap=[];
+  var SVGNS="http://www.w3.org/2000/svg";
+  function svgEl(name,attrs){
+    var e=document.createElementNS(SVGNS,name);
+    if(attrs) for(var k in attrs) e.setAttribute(k,attrs[k]);
+    return e;
+  }
+
+  var PAD_TOP=18, ROW_H=54;
+  function stringY(si){ return PAD_TOP + si*ROW_H + ROW_H/2; }
+
+  function render(){
+    computeFretW();
+    var wins=boxWindows();
+    buildLegend();
+    dotMap=[];
+
+    var boardH = PAD_TOP + STRINGS.length*ROW_H + 26;
+    var stringsBottom = PAD_TOP + STRINGS.length*ROW_H;
+    var boardW = X0 + FRETS*FRETW + 14;
+
+    var svg=document.getElementById("board");
+    svg.setAttribute("width", boardW);
+    svg.setAttribute("height", boardH);
+    svg.setAttribute("viewBox", "0 0 "+boardW+" "+boardH);
+    while(svg.firstChild) svg.removeChild(svg.firstChild);
+
+    svg.appendChild(svgEl("rect",{x:0,y:0,width:boardW,height:boardH,fill:"#2b2218"}));
+
+    if(wins){
+      wins.forEach(function(win){
+        var loX=fretWireX(Math.max(0,win.lo-1));
+        var hiX=fretWireX(win.hi);
+        svg.appendChild(svgEl("rect",{x:loX,y:PAD_TOP-4,width:(hiX-loX),height:(stringsBottom-PAD_TOP+8),fill:"rgba(120,170,230,0.07)",stroke:"rgba(150,190,240,0.3)","stroke-width":1,"stroke-dasharray":"4 4"}));
+      });
+    }
+
+    INLAYS.forEach(function(f){
+      var ys = f===12 ? [PAD_TOP+(stringsBottom-PAD_TOP)*0.30, PAD_TOP+(stringsBottom-PAD_TOP)*0.70] : [(PAD_TOP+stringsBottom)/2];
+      ys.forEach(function(cy){
+        svg.appendChild(svgEl("circle",{cx:fretCenterX(f),cy:cy,r:4.5,fill:"#4a3e2c"}));
+      });
+    });
+
+    for(var f=1;f<=FRETS;f++){
+      svg.appendChild(svgEl("rect",{x:fretWireX(f)-1.25,y:PAD_TOP,width:2.5,height:(stringsBottom-PAD_TOP),fill:"#8a7a5e"}));
+    }
+    svg.appendChild(svgEl("rect",{x:X0-3.5,y:PAD_TOP,width:7,height:(stringsBottom-PAD_TOP),rx:2,fill:"#d8d2c4"}));
+
+    var stringW=[3,2.6,2.2,1.8,1.4,1.1], stringCol=["#6a5c44","#665841","#62543e","#5e503a","#5a4d37","#564a34"];
+    STRINGS.forEach(function(str,si){
+      var y=stringY(si);
+      svg.appendChild(svgEl("rect",{x:X0,y:y-stringW[si]/2,width:(boardW-X0-10),height:stringW[si],fill:stringCol[si]}));
+      var lbl=svgEl("text",{x:X0-30,y:y+4,fill:"var(--ink-faint)","font-size":13,"font-weight":600,"text-anchor":"middle"});
+      lbl.textContent=str.name; svg.appendChild(lbl);
+    });
+
+    for(var f=1;f<=FRETS;f++){
+      var t=svgEl("text",{x:fretCenterX(f),y:stringsBottom+18,fill:"var(--ink-faint)","font-size":11,"font-weight":600,"text-anchor":"middle"});
+      t.textContent=f; svg.appendChild(t);
+    }
+
+    STRINGS.forEach(function(str,si){
+      var y=stringY(si);
+      for(var f=0;f<=FRETS;f++){
+        var pc=(str.open+f)%12;
+        var info=pcInfo(pc);
+        if(!info) continue;
+        if(!inAnyWindow(f,wins)) continue;
+        var cx=fretCenterX(f);
+        var r = info.color==="diatonic" ? 16 : 18;
+        var g=svgEl("g",{class:"dot-grp"});
+        g.appendChild(svgEl("circle",{class:"halo",cx:cx,cy:y,r:r+3,fill:"none",stroke:"#3fb98a","stroke-width":3}));
+        var fill = info.color==="both" ? "url(#bothGrad)"
+                 : info.color==="min" ? "var(--minor)"
+                 : info.color==="maj" ? "var(--major)"
+                 : info.color==="blue" ? "var(--blue)"
+                 : "var(--diatonic)";
+        g.appendChild(svgEl("circle",{class:"body",cx:cx,cy:y,r:r,fill:fill}));
+        if(info.root){
+          g.appendChild(svgEl("circle",{cx:cx,cy:y,r:r,fill:"none",stroke:"var(--rootring)","stroke-width":3}));
+        }
+        var tx=svgEl("text",{x:cx,y:y+4,fill:"#fff","font-size":(info.color==="diatonic"?11:13),"font-weight":700,"text-anchor":"middle"});
+        tx.textContent=CHROMATIC[pc];
+        g.appendChild(tx);
+        svg.appendChild(g);
+        dotMap.push({string:si,midi:(str.octave+1)*12+str.open+f,pc:pc,el:g});
+      }
+    });
+
+    var defs=svgEl("defs");
+    var grad=svgEl("linearGradient",{id:"bothGrad",x1:"0",y1:"0",x2:"1",y2:"0"});
+    grad.appendChild(svgEl("stop",{offset:"50%","stop-color":"var(--minor)"}));
+    grad.appendChild(svgEl("stop",{offset:"50%","stop-color":"var(--major)"}));
+    defs.appendChild(grad);
+    svg.insertBefore(defs, svg.firstChild);
+
+    var glow=svgEl("circle",{id:"glow",class:"glow-c"+(state.hlMode==="note"?" snap":""),cx:0,cy:0,r:18,fill:"none",stroke:"#3fb98a","stroke-width":3});
+    svg.appendChild(glow);
+  }
+
+  function buildLegend(){
+    var L=document.getElementById("legend");var items=[];
+    if(state.minor) items.push(['background:var(--minor)','минорная пентатоника']);
+    if(state.major) items.push(['background:var(--major)','мажорная пентатоника']);
+    if(state.minor&&state.major) items.push(['background:linear-gradient(90deg,var(--minor) 50%,var(--major) 50%)','общие ноты']);
+    items.push(['background:var(--minor);box-shadow:inset 0 0 0 2px #fff','тоника (обводка)']);
+    if(state.blue) items.push(['background:var(--blue)','блюзовая нота']);
+    if(state.full) items.push(['background:var(--diatonic)','остальные ноты гаммы']);
+    L.innerHTML=items.map(function(it){return '<span><i style="'+it[0]+'"></i>'+it[1]+'</span>';}).join("");
+  }
+
+  function clearLitDots(){
+    dotMap.forEach(function(d){ d.el.classList.remove("lit"); });
+  }
+
+  function placeGlow(midiFloat){
+    var glow=document.getElementById("glow");
+    if(state.hlMode==="note"){
+      if(glow) glow.classList.remove("show");
+      clearLitDots();
+      if(midiFloat==null) return;
+      var pc=((Math.round(midiFloat)%12)+12)%12;
+      dotMap.forEach(function(d){ if(d.pc===pc) d.el.classList.add("lit"); });
+      return;
+    }
+    clearLitDots();
+    if(!glow) return;
+    if(midiFloat==null){glow.classList.remove("show");return;}
+    var best=null,bd=999;
+    dotMap.forEach(function(d){var dist=Math.abs(d.midi-midiFloat);if(dist<bd){bd=dist;best=d;}});
+    if(!best || bd>3){glow.classList.remove("show");return;}
+    var str=STRINGS[best.string];
+    var openMidi=(str.octave+1)*12+str.open;
+    var ff=Math.max(0,Math.min(FRETS,midiFloat-openMidi));
+    var cx = ff<=0 ? X0-22 : X0+(ff-0.5)*FRETW;
+    var cy = stringY(best.string);
+    glow.setAttribute("cx",cx); glow.setAttribute("cy",cy);
+    glow.classList.add("show");
+  }
+
+  // ================= ТАБУЛАТУРА (TABS) =================
+  var tabsState={
+    recording: false,
+    data: [],              // { string, fret, note, midi, timestamp }
+    lastMidi: null,
+    lastPos: null,         // { string, fret }
+    candidateMidi: null,
+    candidateFrames: 0,
+    lastNoteTime: 0,
+    silenceFrames: 0,
+    canRetriggerSame: true
+  };
+
+  var tabsDrawer=document.getElementById("tabsDrawer");
+  var tabsDisplay=document.getElementById("tabsDisplay");
+  var tabsScrollWrap=document.getElementById("tabsScrollWrap");
+  var tabsStats=document.getElementById("tabsStats");
+  var tabsStatusBadge=document.getElementById("tabsStatusBadge");
+  var tabsStatusText=document.getElementById("tabsStatusText");
+  var btnTabRecord=document.getElementById("btnTabRecord");
+  var tabRecordLabel=document.getElementById("tabRecordLabel");
+  var btnTabClear=document.getElementById("btnTabClear");
+  var btnTabCopy=document.getElementById("btnTabCopy");
+  var copyTabLabel=document.getElementById("copyTabLabel");
+  var btnTabDownloadGp=document.getElementById("btnTabDownloadGp");
+  var downloadGpLabel=document.getElementById("downloadGpLabel");
+  var btnTabClose=document.getElementById("btnTabClose");
+  var tabBarSelect=document.getElementById("tabBarSelect");
+  var tabsHintText=document.getElementById("tabsHintText");
+  var tabsLiveNote=document.getElementById("tabsLiveNote");
+  var btnTabsToggle=document.getElementById("btn-tabs-toggle");
+  var btnMicTabs=document.getElementById("btn-mic-tabs");
+  var recBadgeHeader=document.getElementById("recBadgeHeader");
+  var recBadgeMic=document.getElementById("recBadgeMic");
+
+  function openTabsDrawer(){
+    tabsDrawer.classList.add("open");
+    document.body.classList.add("tabs-open");
+    btnTabsToggle.classList.add("on");
+    updateTabsUI();
+  }
+  function closeTabsDrawer(){
+    tabsDrawer.classList.remove("open");
+    document.body.classList.remove("tabs-open");
+    btnTabsToggle.classList.remove("on");
+  }
+  function toggleTabsDrawer(){
+    if(tabsDrawer.classList.contains("open")){
+      closeTabsDrawer();
+    } else {
+      openTabsDrawer();
+    }
+  }
+
+  btnTabsToggle.onclick=toggleTabsDrawer;
+  if(btnMicTabs) btnMicTabs.onclick=openTabsDrawer;
+  btnTabClose.onclick=closeTabsDrawer;
+
+  // Алгоритм подбора оптимальной позиции (струна + лад)
+  function findBestTabPosition(targetMidi, lastPos){
+    var candidates=[];
+    var wins=boxWindows();
+
+    for(var si=0; si<STRINGS.length; si++){
+      var str=STRINGS[si];
+      var openMidi=(str.octave+1)*12 + str.open;
+      var f=targetMidi - openMidi;
+      if(f>=0 && f<=FRETS){
+        var inBox=inAnyWindow(f, wins);
+        candidates.push({ string:si, fret:f, inBox:inBox });
+      }
+    }
+
+    if(candidates.length===0) return null;
+    if(candidates.length===1) return candidates[0];
+
+    var hasInBox = wins && wins.length>0 && candidates.some(function(c){ return c.inBox; });
+
+    candidates.sort(function(a, b){
+      // 1. Приоритет активным боксам CAGED
+      if(hasInBox){
+        if(a.inBox && !b.inBox) return -1;
+        if(!a.inBox && b.inBox) return 1;
+      }
+
+      // 2. Близость к предыдущей ноте (плавность движения руки)
+      if(lastPos){
+        var distA=Math.abs(a.fret - lastPos.fret) + Math.abs(a.string - lastPos.string)*1.4;
+        var distB=Math.abs(b.fret - lastPos.fret) + Math.abs(b.string - lastPos.string)*1.4;
+        if(distA !== distB) return distA - distB;
+      }
+
+      // 3. Предпочтение более удобному диапазону (0..12 лады)
+      var penaltyA = a.fret > 15 ? 10 : (a.fret > 12 ? 4 : 0);
+      var penaltyB = b.fret > 15 ? 10 : (b.fret > 12 ? 4 : 0);
+      if(penaltyA !== penaltyB) return penaltyA - penaltyB;
+
+      return a.fret - b.fret;
+    });
+
+    return candidates[0];
+  }
+
+  // Генерация ASCII-табулатуры
+  function generateTabText(data, options){
+    var notesPerBar = (options && options.notesPerBar) || 8;
+    var barsPerLine = (options && options.barsPerLine) || 2;
+    var notesPerLine = notesPerBar * barsPerLine;
+    var fillDashes = (options && options.fillDashes !== undefined) ? options.fillDashes : true;
+
+    if(!data || data.length === 0){
+      var emptyBar = "-".repeat(notesPerBar * 3);
+      var res = [];
+      for(var si=0; si<STRINGS.length; si++){
+        res.push(STRINGS[si].name + "|" + emptyBar + "|" + emptyBar + "|");
+      }
+      return res.join("\n");
+    }
+
+    var totalNotes = data.length;
+    var lineCount = Math.max(1, Math.ceil(totalNotes / notesPerLine));
+    var systems = [];
+
+    for(var l=0; l<lineCount; l++){
+      var slice = data.slice(l * notesPerLine, (l + 1) * notesPerLine);
+      var lines = [];
+      for(var s=0; s<6; s++){
+        lines.push(STRINGS[s].name + "|");
+      }
+
+      for(var ni=0; ni<slice.length; ni++){
+        if(ni > 0 && ni % notesPerBar === 0){
+          for(var s=0; s<6; s++) lines[s] += "|";
+        }
+        var item = slice[ni];
+        var fretStr = String(item.fret);
+        var colW = fretStr.length + 2;
+
+        for(var s=0; s<6; s++){
+          if(s === item.string){
+            lines[s] += "-" + fretStr + "-";
+          } else {
+            lines[s] += "-".repeat(colW);
+          }
+        }
+      }
+
+      // Дополнение текущего такта/строки дефисами для сетки
+      if(fillDashes && l === lineCount - 1){
+        var remaining = notesPerLine - slice.length;
+        for(var r=0; r<remaining; r++){
+          var curIdx = slice.length + r;
+          if(curIdx > 0 && curIdx % notesPerBar === 0){
+            for(var s=0; s<6; s++) lines[s] += "|";
+          }
+          for(var s=0; s<6; s++) lines[s] += "---";
+        }
+      }
+
+      for(var s=0; s<6; s++) lines[s] += "|";
+      systems.push(lines.join("\n"));
+    }
+
+    return systems.join("\n\n");
+  }
+
+  function updateTabsUI(){
+    var barSize = parseInt(tabBarSelect.value, 10) || 8;
+    tabsDisplay.textContent = generateTabText(tabsState.data, { notesPerBar: barSize, fillDashes: true });
+    
+    var count = tabsState.data.length;
+    if(count === 0){
+      tabsStats.textContent = "0 нот";
+      tabsLiveNote.textContent = "";
+    } else {
+      var last = tabsState.data[count - 1];
+      tabsStats.textContent = count + " нот";
+      tabsLiveNote.textContent = "Посл: " + last.note + " (струна " + STRINGS[last.string].name + ", лад " + last.fret + ")";
+    }
+
+    if(tabsScrollWrap){
+      tabsScrollWrap.scrollTop = tabsScrollWrap.scrollHeight;
+    }
+  }
+
+  function updateRecordingStateUI(){
+    if(tabsState.recording){
+      btnTabRecord.classList.add("recording");
+      tabRecordLabel.textContent="Остановить запись";
+      tabsStatusBadge.classList.add("recording");
+      tabsStatusText.textContent="Запись...";
+      recBadgeHeader.classList.add("show");
+      recBadgeMic.classList.add("show");
+      tabsHintText.textContent="Идёт запись: сыгранные ноты моментально записываются в табулатуру.";
+    } else {
+      btnTabRecord.classList.remove("recording");
+      tabRecordLabel.textContent="Начать запись";
+      tabsStatusBadge.classList.remove("recording");
+      tabsStatusText.textContent=tabsState.data.length ? "Пауза" : "Ожидание";
+      recBadgeHeader.classList.remove("show");
+      recBadgeMic.classList.remove("show");
+      tabsHintText.textContent="Нажмите «Начать запись» и сыграйте мелодию или соло.";
+    }
+  }
+
+  btnTabRecord.onclick=function(){
+    tabsState.recording = !tabsState.recording;
+    updateRecordingStateUI();
+    if(tabsState.recording && !running){
+      startMic();
+    }
+  };
+
+  btnTabClear.onclick=function(){
+    tabsState.data = [];
+    tabsState.lastMidi = null;
+    tabsState.lastPos = null;
+    tabsState.candidateMidi = null;
+    tabsState.candidateFrames = 0;
+    tabsState.canRetriggerSame = true;
+    updateTabsUI();
+  };
+
+  btnTabCopy.onclick=function(){
+    var barSize = parseInt(tabBarSelect.value, 10) || 8;
+    var txt = generateTabText(tabsState.data, { notesPerBar: barSize, fillDashes: false });
+    navigator.clipboard.writeText(txt).then(function(){
+      var orig = copyTabLabel.textContent;
+      copyTabLabel.textContent = "Скопировано!";
+      setTimeout(function(){ copyTabLabel.textContent = orig; }, 1500);
+    });
+  };
+
+  // Генерация alphaTex для экспорта в файл Guitar Pro 7 (.gp)
+  function generateAlphaTex(data, barSize, keyName){
+    var duration = barSize === 4 ? ":4" : (barSize === 16 ? ":16" : ":8");
+    var timeSig = barSize === 12 ? "\\ts 12 8" : "\\ts 4 4";
+    var title = "Play Your Solo - " + (keyName || "Solo");
+
+    if(!data || data.length === 0){
+      return "\\title \"" + title + "\"\n\\tempo 120\n" + timeSig + "\n.\n" + duration + " r |";
+    }
+
+    var tokens = [];
+    tokens.push(duration);
+
+    for(var i = 0; i < data.length; i++){
+      if(i > 0 && i % barSize === 0){
+        tokens.push("|");
+      }
+      var item = data[i];
+      var alphaString = item.string + 1; // 1 = high e, 6 = low E
+      tokens.push(item.fret + "." + alphaString);
+    }
+
+    var remainder = data.length % barSize;
+    if(remainder !== 0){
+      var missing = barSize - remainder;
+      for(var r = 0; r < missing; r++){
+        tokens.push("r");
+      }
+    }
+    tokens.push("|");
+
+    return "\\title \"" + title + "\"\n\\tempo 120\n" + timeSig + "\n.\n" + tokens.join(" ");
+  }
+
+  function downloadGpFile(){
+    if(!tabsState.data || tabsState.data.length === 0){
+      var prevHint = tabsHintText.textContent;
+      tabsHintText.textContent = "Сначала сыграйте или запишите ноты, чтобы скачать табулатуру .gp!";
+      setTimeout(function(){
+        tabsHintText.textContent = prevHint;
+      }, 2500);
+      return;
+    }
+
+    var barSize = parseInt(tabBarSelect.value, 10) || 8;
+    var tonic = CHROMATIC[state.rootPc];
+    var scaleName = state.minor && state.major ? "Pentatonic" : (state.minor ? "Minor" : "Major");
+    var fullTitle = tonic + " " + scaleName;
+
+    try {
+      var tex = generateAlphaTex(tabsState.data, barSize, fullTitle);
+      var settings = new alphaTab.Settings();
+      var score = alphaTab.importer.ScoreLoader.loadAlphaTex(tex, settings);
+
+      if(score.tracks && score.tracks.length > 0){
+        score.tracks[0].name = "Lead Guitar (" + fullTitle + ")";
+      }
+      score.title = "Play Your Solo - " + fullTitle;
+      score.artist = "Play Your Solo";
+
+      var exporter = new alphaTab.exporter.Gp7Exporter();
+      var gpBytes = exporter.export(score, settings);
+
+      var blob = new Blob([gpBytes], { type: "application/octet-stream" });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement("a");
+      a.style.display = "none";
+      a.href = url;
+      a.download = "solo-" + tonic.toLowerCase() + "-" + (state.minor ? "minor" : "major") + ".gp";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      var orig = downloadGpLabel.textContent;
+      downloadGpLabel.textContent = "Скачано!";
+      setTimeout(function(){ downloadGpLabel.textContent = orig; }, 1500);
+    } catch(err){
+      console.error("Ошибка экспорта в Guitar Pro:", err);
+      tabsHintText.textContent = "Ошибка при создании .gp: " + (err.message || err);
+    }
+  }
+
+  if(btnTabDownloadGp){
+    btnTabDownloadGp.onclick = downloadGpFile;
+  }
+
+  tabBarSelect.onchange=function(){
+    updateTabsUI();
+  };
+
+  // Регистрация распознанной ноты в табулатуру
+  function recordTabNote(midi, now){
+    var pos = findBestTabPosition(midi, tabsState.lastPos);
+    if(!pos) return;
+    tabsState.lastPos = pos;
+    var pc = ((midi % 12) + 12) % 12;
+    var oct = Math.floor(midi / 12) - 1;
+    var noteStr = CHROMATIC[pc] + oct;
+
+    tabsState.data.push({
+      string: pos.string,
+      fret: pos.fret,
+      note: noteStr,
+      midi: midi,
+      timestamp: now
+    });
+
+    updateTabsUI();
+  }
+
+  // ================= AUDIO =================
+  var audioCtx,analyser,detector,inputBuf,raf,stream,running=false;
+  var A4=440;
+  var micBtn=document.getElementById("micBtn"),micLabel=document.getElementById("micLabel");
+  micBtn.disabled=false;micLabel.textContent="Включить микрофон";
+
+  function startMic(){
+    if(running) return;
+    navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,autoGainControl:false,noiseSuppression:false}})
+      .then(function(s){
+        stream=s;
+        audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+        analyser=audioCtx.createAnalyser();analyser.fftSize=2048;
+        inputBuf=new Float32Array(2048);
+        detector=PitchDetector.forFloat32Array(2048);
+        detector.minVolumeDecibels=-30;
+        audioCtx.createMediaStreamSource(stream).connect(analyser);
+        running=true;micBtn.classList.add("live");micLabel.textContent="Остановить";loop();
+      })
+      .catch(function(err){
+        micLabel.textContent=(err&&err.name==="NotAllowedError")?"Доступ запрещён — нужен HTTPS/localhost":"Ошибка: "+(err&&err.name||err);
+        console.error(err);
+      });
+  }
+
+  function stop(){
+    running=false;if(raf)cancelAnimationFrame(raf);
+    if(stream)stream.getTracks().forEach(function(t){t.stop()});
+    if(audioCtx)audioCtx.close();
+    micBtn.classList.remove("live");micLabel.textContent="Включить микрофон";
+    document.getElementById("glow").classList.remove("show");
+    clearLitDots();
+    document.getElementById("nowNote").textContent="—";
+    document.getElementById("nowFreq").textContent="— Hz";
+    document.getElementById("nowCents").textContent="";
+    if(tabsState.recording){
+      tabsState.recording = false;
+      updateRecordingStateUI();
+    }
+  }
+
+  micBtn.onclick=function(){
+    if(running){ stop(); } else { startMic(); }
+  };
+
+  function midiFloat(freq){return 69+12*Math.log2(freq/A4);}
+
+  function loop(){
+    analyser.getFloatTimeDomainData(inputBuf);
+    var res=detector.findPitch(inputBuf,audioCtx.sampleRate);
+    var freq=res[0],clarity=res[1];
+    var nN=document.getElementById("nowNote"),nF=document.getElementById("nowFreq"),nC=document.getElementById("nowCents");
+    var glow=document.getElementById("glow");
+
+    if(clarity<0.85||freq<70||freq>1300){
+      nN.textContent="—";nF.textContent="— Hz";nC.textContent="";nC.className="cents mono";
+      glow.classList.remove("show");
+      clearLitDots();
+
+      // Для табулатуры: отслеживание пауз между нотами
+      tabsState.silenceFrames++;
+      tabsState.candidateFrames = 0;
+      if(tabsState.silenceFrames >= 5){
+        tabsState.canRetriggerSame = true;
+      }
+    } else {
+      var mf=midiFloat(freq),near=Math.round(mf),cents=Math.round((mf-near)*100);
+      var pc=((near%12)+12)%12;
+      nN.innerHTML=CHROMATIC[pc]+'<span class="oct">'+(Math.floor(near/12)-1)+'</span>';
+      nF.textContent=freq.toFixed(1)+" Hz";
+      placeGlow(mf);
+      if(state.hlMode==="bend" && Math.abs(cents)>25){
+        glow.classList.add("bending");
+        nC.textContent="бенд "+(cents>0?"+":"")+cents+"¢";nC.className="cents mono bend";
+      } else {
+        glow.classList.remove("bending");
+        nC.textContent=(cents>=0?"+":"")+cents+"¢";nC.className="cents mono";
+      }
+
+      // Логика записи табулатуры
+      tabsState.silenceFrames = 0;
+      if(near === tabsState.candidateMidi){
+        tabsState.candidateFrames++;
+      } else {
+        tabsState.candidateMidi = near;
+        tabsState.candidateFrames = 1;
+      }
+
+      if(tabsState.recording && tabsState.candidateFrames >= 2){
+        var now = performance.now();
+        var isDifferent = (near !== tabsState.lastMidi);
+        var isRetrigger = (near === tabsState.lastMidi && tabsState.canRetriggerSame && (now - tabsState.lastNoteTime > 240));
+
+        if((isDifferent && (now - tabsState.lastNoteTime > 110)) || isRetrigger){
+          recordTabNote(near, now);
+          tabsState.lastMidi = near;
+          tabsState.lastNoteTime = now;
+          tabsState.canRetriggerSame = false;
+        }
+      }
+    }
+    raf=requestAnimationFrame(loop);
+  }
+
+  render();
+  updateTabsUI();
+
+  var resizeTimer=null;
+  window.addEventListener("resize",function(){
+    clearTimeout(resizeTimer);
+    resizeTimer=setTimeout(render,120);
+  });
+})();
+</script>
+</body>
+</html>
