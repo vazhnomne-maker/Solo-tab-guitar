@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Play Your Solo</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj4KICA8cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgcng9IjIyIiBmaWxsPSIjMDAwIi8+CiAgPHBhdGggZmlsbD0iI2ZmZiIgZD0iTTcwLjUgMjQuMmMxLjktLjUgMy44IDEgMy44IDN2MzYuMWMwIDUuMy00LjYgOS41LTEwLjIgOS41cy0xMC4yLTQuMy0xMC4yLTkuNSA0LjYtOS41IDEwLjItOS41YzEuNSAwIDMgLjMgNC4yLjlWNDEuNEw0MSA0OC45djIwLjRjMCA1LjMtNC42IDkuNS0xMC4yIDkuNVMyMC42IDc0LjYgMjAuNiA2OS4zczQuNi05LjUgMTAuMi05LjVjMS41IDAgMyAuMyA0LjIuOVYzNy43YzAtMS44IDEuMi0zLjQgMy0zLjh6Ii8+Cjwvc3ZnPgo=">
+<style>
+  :root{
+    --bg:#13151a;--panel:#1b1e26;--panel-2:#232732;--line:#2e3340;--line-bright:#3c4254;
+    --ink:#e8eaf0;--ink-dim:#9aa0b0;--ink-faint:#646b7d;
+    --minor:#3d8ad8;     /* minor pentatonic - blue */
+    --major:#d8483f;     /* major pentatonic - red */
+    --diatonic:#566074;  /* extra scale notes - muted slate */
+    --blue:#41b9a8;      /* blue note - teal */
+    --rootring:#ffffff;  /* tonic outline */
+    --glow:#3fb98a;--glowbend:#d9a441;
+    --radius:10px;--radius-sm:6px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--bg);color:var(--ink);font-family:'Helvetica Neue',Arial,sans-serif;-webkit-font-smoothing:antialiased}
+  body{min-height:100vh;padding:0 0 56px}
+  .mono{font-family:'SF Mono','Roboto Mono',Menlo,Consolas,monospace}
+  header{border-bottom:1px solid var(--line);padding:22px 28px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+  .logo{font-size:23px;font-weight:700;letter-spacing:-0.02em}
+  .header-actions{display:flex;gap:8px}
+  .header-actions .tg{display:inline-flex;align-items:center;gap:6px;
+                      color:var(--ink);background:var(--panel-2);border-color:var(--line-bright)}
+  .header-actions .tg:hover{background:var(--line);border-color:var(--ink-faint)}
+  .header-actions .tg svg{flex:none;display:block}
+  @media (max-width:600px){
+    header{padding:16px 18px}
+    .header-actions .txt{display:none}
+    .header-actions .tg{padding:9px;gap:0}
+  }
+  .wrap{max-width:1240px;margin:0 auto;padding:0 28px}
+
+  .controls{display:flex;gap:30px;flex-wrap:wrap;align-items:flex-start;padding:26px 0 22px;border-bottom:1px solid var(--line)}
+  .field{display:flex;flex-direction:column;gap:9px}
+  .field > label{font-size:11px;text-transform:uppercase;letter-spacing:0.12em;color:var(--ink-faint);font-weight:600}
+  .row{display:flex;gap:8px;flex-wrap:wrap}
+  .tg{background:var(--panel);border:1px solid var(--line);color:var(--ink-dim);padding:9px 15px;font-size:13px;cursor:pointer;border-radius:var(--radius-sm);font-weight:500;transition:background .12s,color .12s,border-color .12s;display:flex;align-items:center;gap:7px}
+  .tg:hover{color:var(--ink);border-color:var(--line-bright)}
+  .tg .sw{width:9px;height:9px;border-radius:50%;background:currentColor;opacity:.35;transition:opacity .12s}
+  .tg.on{color:var(--ink);background:var(--panel-2)}.tg.on .sw{opacity:1}
+  .tg.on.min{border-color:var(--minor)}.tg.on.min .sw{color:var(--minor)}
+  .tg.on.maj{border-color:var(--major)}.tg.on.maj .sw{color:var(--major)}
+  .tg.on.fl{border-color:var(--diatonic)}.tg.on.fl .sw{color:var(--diatonic)}
+  .tg.on.bn{border-color:var(--blue)}.tg.on.bn .sw{color:var(--blue)}
+  .keys{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;max-width:690px}
+  .keys button{background:var(--panel);border:1px solid var(--line);color:var(--ink-dim);padding:9px 0;font-size:14px;cursor:pointer;border-radius:var(--radius-sm);transition:background .12s,color .12s,border-color .12s;font-weight:500}
+  .keys button:hover{color:var(--ink);border-color:var(--line-bright)}
+  .keys button.on{background:var(--panel-2);border-color:var(--ink-dim);color:var(--ink)}
+  .seg{display:inline-flex;align-self:flex-start;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius-sm);overflow:hidden}
+  .seg button{background:transparent;border:none;color:var(--ink-dim);padding:9px 14px;font-size:13px;cursor:pointer;font-weight:500;transition:background .12s,color .12s;border-right:1px solid var(--line)}
+  .seg button:last-child{border-right:none}
+  .seg button:hover{color:var(--ink)}
+  .seg button.on{background:var(--panel-2);color:var(--ink)}
+
+  .legend{display:flex;gap:18px;flex-wrap:wrap;padding:16px 0 0;font-size:12px;color:var(--ink-dim)}
+  .legend span{display:flex;align-items:center;gap:6px}
+  .legend i{width:12px;height:12px;border-radius:50%;display:inline-block}
+  .legend i.ring{box-shadow:inset 0 0 0 2px var(--rootring);background:var(--minor)}
+
+  .board-section{padding:22px 0}
+  .board-scroll{overflow-x:auto;padding-bottom:8px}
+  .fretboard{border:1px solid #3a2f22;border-radius:var(--radius);overflow:hidden}
+  #board{display:block}
+  .dot-grp{cursor:default}
+  .dot-grp circle.halo{opacity:0;transition:opacity .22s ease-out}
+  .dot-grp.lit circle.halo{opacity:1}
+  .dot-grp circle.body{transition:transform .22s ease-out}
+  .glow-c{opacity:0;transition:opacity .12s, cx .14s ease-out, cy .14s ease-out;filter:drop-shadow(0 0 8px rgba(63,185,138,.7))}
+  .glow-c.show{opacity:1}
+  .glow-c.bending{stroke:#d9a441 !important;filter:drop-shadow(0 0 8px rgba(217,164,65,.7))}
+  .glow-c.snap{transition:opacity .1s, cx .05s ease-out, cy .05s ease-out}
+  .dot-grp.lit .halo{filter:drop-shadow(0 0 7px rgba(63,185,138,.6))}
+
+  .mic-section{padding:16px 0 0;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+  .mic-btn{background:var(--glow);border:none;color:#0c1410;font-weight:600;padding:11px 20px;border-radius:var(--radius-sm);cursor:pointer;font-size:14px;display:flex;align-items:center;gap:8px;transition:opacity .15s,background .15s}
+  .mic-btn:hover{opacity:.9}.mic-btn:disabled{opacity:.5;cursor:wait}
+  .mic-btn.live{background:var(--major)}
+  .mic-btn .pulse{width:8px;height:8px;border-radius:50%;background:currentColor}
+  .mic-btn.live .pulse{animation:pulse 1s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+  .now{display:flex;align-items:baseline;gap:14px}
+  .now .nb{font-size:34px;font-weight:700;line-height:1;min-width:54px}
+  .now .nb .oct{font-size:15px;color:var(--ink-dim);vertical-align:super}
+  .now .meta{font-size:13px;color:var(--ink-dim)}
+  .now .cents{font-weight:600}.now .cents.bend{color:var(--glowbend)}
+
+  .modal{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;padding:20px;
+         background:rgba(8,9,12,.72);opacity:0;visibility:hidden;transition:opacity .15s ease,visibility .15s}
+  .modal.open{opacity:1;visibility:visible}
+  .modal-box{position:relative;width:100%;max-width:420px;background:var(--panel);border:1px solid var(--line);
+             border-radius:var(--radius);padding:28px}
+  .modal h2{font-size:11px;text-transform:uppercase;letter-spacing:0.12em;color:var(--ink-faint);font-weight:600}
+  .modal p{margin:14px 0 20px;font-size:14px;line-height:1.55;color:var(--ink-dim)}
+  .modal-close{position:absolute;top:10px;right:10px;width:30px;height:30px;background:transparent;border:none;
+               color:var(--ink-faint);font-size:20px;line-height:1;cursor:pointer;border-radius:var(--radius-sm);transition:color .12s,background .12s}
+  .modal-close:hover{color:var(--ink);background:var(--panel-2)}
+  .btn-accent{display:inline-flex;align-items:center;justify-content:center;background:var(--glow);color:#0c1410;
+              border:none;padding:11px 20px;border-radius:var(--radius-sm);font-size:14px;font-weight:600;
+              text-decoration:none;cursor:pointer;transition:opacity .15s}
+  .btn-accent:hover{opacity:.9}
+  .modal .tg{text-decoration:none;display:inline-flex}
+  .alt{margin:12px 0 0;font-size:12px;color:var(--ink-dim);line-height:1.5}
+  .alt button{background:none;border:none;padding:0;font:inherit;color:var(--ink);cursor:pointer;
+              border-bottom:1px dashed var(--line-bright)}
+  .alt button:hover{color:var(--glow);border-bottom-color:var(--glow)}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">Play Your Solo</div>
+  <div class="header-actions">
+    <button class="tg" id="btn-support" aria-label="Поддержать">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+      </svg><span class="txt">Поддержать</span>
+    </button>
+    <button class="tg" id="btn-feedback" aria-label="Поделиться фидбеком">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+      </svg><span class="txt">Поделиться фидбеком</span>
+    </button>
+  </div>
+</header>
+
+<div class="modal" id="modal-support" role="dialog" aria-modal="true" aria-labelledby="modal-support-title">
+  <div class="modal-box">
+    <button class="modal-close" data-close aria-label="Закрыть">×</button>
+    <h2 id="modal-support-title">Поддержать проект</h2>
+    <p>Привет! Это Даша, автор этого мини-проекта. Если он оказался полезен — я буду рада, если вы поддержите его любым донатом.</p>
+    <a class="btn-accent" href="https://www.tinkoff.ru/rm/r_xfwzeGQKAK.rSAUwSSfQy/kJA2Z88440" target="_blank" rel="noopener">Поддержать</a>
+    <p class="alt">или по номеру <button type="button" id="copyPhone">+7 995 155 23 20</button> (Дарья М.)</p>
+  </div>
+</div>
+
+<div class="modal" id="modal-feedback" role="dialog" aria-modal="true" aria-labelledby="modal-feedback-title">
+  <div class="modal-box">
+    <button class="modal-close" data-close aria-label="Закрыть">×</button>
+    <h2 id="modal-feedback-title">Поделиться фидбеком</h2>
+    <p>Нашли баг или есть идея, как улучшить проект? Напишите мне в Telegram, я буду рада любым идеям!</p>
+    <a class="tg" href="https://t.me/mar_dasha" target="_blank" rel="noopener">Написать в Telegram</a>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="controls">
+    <div class="field">
+      <label>Пентатоника</label>
+      <div class="row" id="scaleToggles">
+        <button class="tg min on" data-s="minor"><span class="sw"></span>Минорная</button>
+        <button class="tg maj" data-s="major"><span class="sw"></span>Мажорная</button>
+      </div>
+    </div>
+    <div class="field">
+      <label>Тоника</label>
+      <div class="keys" id="keyGrid"></div>
+    </div>
+    <div class="field">
+      <label>Дополнительно</label>
+      <div class="row">
+        <button class="tg fl" id="tgFull"><span class="sw"></span>Полная гамма</button>
+        <button class="tg bn" id="tgBlue"><span class="sw"></span>Блюзовая нота</button>
+      </div>
+    </div>
+    <div class="field">
+      <label>Боксы (CAGED) — можно несколько</label>
+      <div class="seg" id="boxCount">
+        <button data-n="1">1</button>
+        <button data-n="2">2</button>
+        <button data-n="3">3</button>
+        <button data-n="4">4</button>
+        <button data-n="5">5</button>
+        <button data-n="all" class="on">Все</button>
+      </div>
+    </div>
+    <div class="field">
+      <label>Подсветка с микрофона</label>
+      <div class="seg" id="hlMode">
+        <button data-h="note" class="on">Ноты</button>
+        <button data-h="bend">Бенды</button>
+      </div>
+      <div class="mic-section">
+        <button class="mic-btn" id="micBtn" disabled><span class="pulse"></span><span id="micLabel">Загрузка движка…</span></button>
+        <div class="now">
+          <div class="nb" id="nowNote">—</div>
+          <div class="meta">
+            <span class="mono" id="nowFreq">— Hz</span> ·
+            <span class="cents mono" id="nowCents"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="legend" id="legend"></div>
+
+  <div class="board-section">
+    <div class="board-scroll">
+      <div class="fretboard" id="fretboard">
+        <svg id="board" xmlns="http://www.w3.org/2000/svg"></svg>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  function open(m){ m.classList.add("open"); }
+  function closeAll(){
+    [].forEach.call(document.querySelectorAll(".modal.open"),function(m){m.classList.remove("open")});
+  }
+  document.getElementById("btn-support").onclick=function(){open(document.getElementById("modal-support"))};
+  document.getElementById("btn-feedback").onclick=function(){open(document.getElementById("modal-feedback"))};
+
+  [].forEach.call(document.querySelectorAll(".modal"),function(m){
+    m.addEventListener("click",function(e){
+      // клик по подложке или крестику
+      if(e.target===m || e.target.hasAttribute("data-close")) closeAll();
+    });
+  });
+  document.addEventListener("keydown",function(e){ if(e.key==="Escape") closeAll(); });
+
+  var phoneBtn=document.getElementById("copyPhone"), phoneTimer=null;
+  var phoneText=phoneBtn.textContent;
+  phoneBtn.onclick=function(){
+    navigator.clipboard.writeText("+79951552320").then(function(){
+      phoneBtn.textContent="Скопировано";
+      clearTimeout(phoneTimer);
+      phoneTimer=setTimeout(function(){phoneBtn.textContent=phoneText;},1500);
+    });
+  };
+})();
+</script>
+
+<script type="module">
+import { PitchDetector } from "https://esm.sh/pitchy@4";
+
+(function(){
+  "use strict";
+  var CHROMATIC=["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
+  var STRINGS=[
+    {name:"e",open:4,octave:4},{name:"B",open:11,octave:3},{name:"G",open:7,octave:3},
+    {name:"D",open:2,octave:3},{name:"A",open:9,octave:2},{name:"E",open:4,octave:2}
+  ];
+  var FRETS=20;
+  var INLAYS=[3,5,7,9,12,15,17,19];
+  var PENT={minor:[0,3,5,7,10],major:[0,2,4,7,9]};
+  var DIATONIC={minor:[0,2,3,5,7,8,10],major:[0,2,4,5,7,9,11]};
+  var BLUE={minor:6,major:3};
+  var BOX_SPANS=[[0,3],[2,5],[5,8],[7,10],[10,13]];
+  // major-pentatonic boxes: same shapes but one fret wider on the left
+  var MAJOR_BOX_SPANS=[[-1,3],[1,5],[4,8],[6,10],[9,13]];
+
+  // geometry: X0 is the nut offset (fixed); FRETW is computed to fit the screen,
+  // but never below FRETW_MIN — below that the board scrolls horizontally.
+  var X0=52, FRETW=66, FRETW_MIN=40;
+  function computeFretW(){
+    var scroll=document.querySelector(".board-scroll");
+    var avail=scroll ? scroll.clientWidth : 1000;
+    // available width for the frets area = container minus nut offset and side padding
+    var w=(avail - X0 - 34) / FRETS;          // 34 = fretboard left+right padding
+    FRETW=Math.max(FRETW_MIN, Math.min(66, w)); // cap at 66 so it never looks stretched
+  }
+  function fretCenterX(f){ return f===0 ? X0-22 : X0 + (f-0.5)*FRETW; }
+  function fretWireX(f){ return X0 + f*FRETW; }
+
+  var state={
+    minor:true, major:false, rootPc:9,
+    full:false, blue:false,
+    boxes:[], hlMode:"note"   // boxes: active box indices 0..4; empty = all
+  };
+
+  var keyGrid=document.getElementById("keyGrid");
+  CHROMATIC.forEach(function(n,i){
+    var b=document.createElement("button");
+    b.textContent=n;b.dataset.pc=i;
+    if(i===state.rootPc)b.classList.add("on");
+    b.onclick=function(){
+      state.rootPc=i;
+      [].forEach.call(keyGrid.children,function(c){c.classList.remove("on")});
+      b.classList.add("on"); render();
+    };
+    keyGrid.appendChild(b);
+  });
+
+  document.getElementById("scaleToggles").addEventListener("click",function(e){
+    var btn=e.target.closest("button"); if(!btn) return;
+    var s=btn.dataset.s, other=s==="minor"?"major":"minor";
+    if(state[s] && !state[other]) return;
+    state[s]=!state[s];
+    btn.classList.toggle("on",state[s]);
+    render();
+  });
+  document.getElementById("tgFull").onclick=function(){state.full=!state.full;this.classList.toggle("on",state.full);render();};
+  document.getElementById("tgBlue").onclick=function(){state.blue=!state.blue;this.classList.toggle("on",state.blue);render();};
+
+  document.getElementById("boxCount").addEventListener("click",function(e){
+    var btn=e.target.closest("button"); if(!btn) return;
+    var seg=this;
+    if(btn.dataset.n==="all"){
+      state.boxes=[];
+      [].forEach.call(seg.children,function(c){c.classList.remove("on")});
+      btn.classList.add("on");
+    } else {
+      var n=parseInt(btn.dataset.n,10)-1;     // 0-based box index
+      var i=state.boxes.indexOf(n);
+      if(i===-1) state.boxes.push(n); else state.boxes.splice(i,1);
+      btn.classList.toggle("on",state.boxes.indexOf(n)!==-1);
+      // "Все" is on only when no individual box is selected
+      var allBtn=seg.querySelector('[data-n="all"]');
+      allBtn.classList.toggle("on",state.boxes.length===0);
+    }
+    render();
+  });
+  document.getElementById("hlMode").addEventListener("click",function(e){
+    var btn=e.target.closest("button"); if(!btn) return;
+    state.hlMode=btn.dataset.h;
+    [].forEach.call(this.children,function(c){c.classList.remove("on")});
+    btn.classList.add("on");
+    var glow=document.getElementById("glow");
+    glow.classList.toggle("snap",state.hlMode==="note");
+    glow.classList.remove("show","bending");
+    clearLitDots();
+  });
+
+  // role of a pitch class: which colors + is it the tonic
+  function pcInfo(pc){
+    var off=((pc-state.rootPc)%12+12)%12;
+    var inMin=state.minor && PENT.minor.indexOf(off)!==-1;
+    var inMaj=state.major && PENT.major.indexOf(off)!==-1;
+    var isRoot=off===0 && (state.minor||state.major);
+    var color=null;
+    if(inMin && inMaj) color="both";
+    else if(inMin) color="min";
+    else if(inMaj) color="maj";
+
+    if(color) return {color:color,root:isRoot};
+
+    if(state.blue){
+      if(state.minor && off===BLUE.minor) return {color:"blue",root:false};
+      if(state.major && off===BLUE.major) return {color:"blue",root:false};
+    }
+    if(state.full){
+      var inDiaMin=state.minor && DIATONIC.minor.indexOf(off)!==-1;
+      var inDiaMaj=state.major && DIATONIC.major.indexOf(off)!==-1;
+      if(inDiaMin||inDiaMaj) return {color:"diatonic",root:false};
+    }
+    return null;
+  }
+
+  // returns array of {lo,hi} windows for each active box; null = show all frets
+  function boxWindows(){
+    if(state.boxes.length===0) return null;       // "Все"
+    var rootFretLowE=((state.rootPc-STRINGS[5].open)%12+12)%12;
+    // wider major box shapes whenever major is active (major-only OR both);
+    // minor-only keeps the standard spans
+    var spans = state.major ? MAJOR_BOX_SPANS : BOX_SPANS;
+    return state.boxes.slice().sort(function(a,b){return a-b;}).map(function(idx){
+      return {
+        lo:Math.max(0,rootFretLowE+spans[idx][0]),
+        hi:Math.min(FRETS,rootFretLowE+spans[idx][1])
+      };
+    });
+  }
+  function inAnyWindow(f,wins){
+    if(!wins) return true;
+    for(var i=0;i<wins.length;i++) if(f>=wins[i].lo && f<=wins[i].hi) return true;
+    return false;
+  }
+
+  var dotMap=[];
+  var SVGNS="http://www.w3.org/2000/svg";
+  function svgEl(name,attrs){
+    var e=document.createElementNS(SVGNS,name);
+    if(attrs) for(var k in attrs) e.setAttribute(k,attrs[k]);
+    return e;
+  }
+
+  // vertical layout inside the SVG
+  var PAD_TOP=18, ROW_H=54;
+  function stringY(si){ return PAD_TOP + si*ROW_H + ROW_H/2; }   // center line of string si
+
+  function render(){
+    computeFretW();
+    var wins=boxWindows();
+    buildLegend();
+    dotMap=[];
+
+    var boardH = PAD_TOP + STRINGS.length*ROW_H + 26;   // +26 for fret numbers row
+    var stringsBottom = PAD_TOP + STRINGS.length*ROW_H;
+    var boardW = X0 + FRETS*FRETW + 14;
+
+    var svg=document.getElementById("board");
+    svg.setAttribute("width", boardW);
+    svg.setAttribute("height", boardH);
+    svg.setAttribute("viewBox", "0 0 "+boardW+" "+boardH);
+    while(svg.firstChild) svg.removeChild(svg.firstChild);
+
+    // wood background
+    svg.appendChild(svgEl("rect",{x:0,y:0,width:boardW,height:boardH,fill:"#2b2218"}));
+
+    // box shade(s)
+    if(wins){
+      wins.forEach(function(win){
+        var loX=fretWireX(Math.max(0,win.lo-1));
+        var hiX=fretWireX(win.hi);
+        svg.appendChild(svgEl("rect",{x:loX,y:PAD_TOP-4,width:(hiX-loX),height:(stringsBottom-PAD_TOP+8),fill:"rgba(120,170,230,0.07)",stroke:"rgba(150,190,240,0.3)","stroke-width":1,"stroke-dasharray":"4 4"}));
+      });
+    }
+
+    // inlays
+    INLAYS.forEach(function(f){
+      var ys = f===12 ? [PAD_TOP+(stringsBottom-PAD_TOP)*0.30, PAD_TOP+(stringsBottom-PAD_TOP)*0.70] : [(PAD_TOP+stringsBottom)/2];
+      ys.forEach(function(cy){
+        svg.appendChild(svgEl("circle",{cx:fretCenterX(f),cy:cy,r:4.5,fill:"#4a3e2c"}));
+      });
+    });
+
+    // fret wires
+    for(var f=1;f<=FRETS;f++){
+      svg.appendChild(svgEl("rect",{x:fretWireX(f)-1.25,y:PAD_TOP,width:2.5,height:(stringsBottom-PAD_TOP),fill:"#8a7a5e"}));
+    }
+    // nut
+    svg.appendChild(svgEl("rect",{x:X0-3.5,y:PAD_TOP,width:7,height:(stringsBottom-PAD_TOP),rx:2,fill:"#d8d2c4"}));
+
+    // strings (horizontal) + open labels
+    var stringW=[3,2.6,2.2,1.8,1.4,1.1], stringCol=["#6a5c44","#665841","#62543e","#5e503a","#5a4d37","#564a34"];
+    STRINGS.forEach(function(str,si){
+      var y=stringY(si);
+      svg.appendChild(svgEl("rect",{x:X0,y:y-stringW[si]/2,width:(boardW-X0-10),height:stringW[si],fill:stringCol[si]}));
+      var lbl=svgEl("text",{x:X0-30,y:y+4,fill:"var(--ink-faint)","font-size":13,"font-weight":600,"text-anchor":"middle"});
+      lbl.textContent=str.name; svg.appendChild(lbl);
+    });
+
+    // fret numbers
+    for(var f=1;f<=FRETS;f++){
+      var t=svgEl("text",{x:fretCenterX(f),y:stringsBottom+18,fill:"var(--ink-faint)","font-size":11,"font-weight":600,"text-anchor":"middle"});
+      t.textContent=f; svg.appendChild(t);
+    }
+
+    // note dots
+    STRINGS.forEach(function(str,si){
+      var y=stringY(si);
+      for(var f=0;f<=FRETS;f++){
+        var pc=(str.open+f)%12;
+        var info=pcInfo(pc);
+        if(!info) continue;
+        if(!inAnyWindow(f,wins)) continue;
+        var cx=fretCenterX(f);
+        var r = info.color==="diatonic" ? 16 : 18;
+        var g=svgEl("g",{class:"dot-grp"});
+        // halo (green glow ring) under body
+        g.appendChild(svgEl("circle",{class:"halo",cx:cx,cy:y,r:r+3,fill:"none",stroke:"#3fb98a","stroke-width":3}));
+        // body
+        var fill = info.color==="both" ? "url(#bothGrad)"
+                 : info.color==="min" ? "var(--minor)"
+                 : info.color==="maj" ? "var(--major)"
+                 : info.color==="blue" ? "var(--blue)"
+                 : "var(--diatonic)";
+        g.appendChild(svgEl("circle",{class:"body",cx:cx,cy:y,r:r,fill:fill}));
+        // tonic outline
+        if(info.root){
+          g.appendChild(svgEl("circle",{cx:cx,cy:y,r:r,fill:"none",stroke:"var(--rootring)","stroke-width":3}));
+        }
+        var tx=svgEl("text",{x:cx,y:y+4,fill:"#fff","font-size":(info.color==="diatonic"?11:13),"font-weight":700,"text-anchor":"middle"});
+        tx.textContent=CHROMATIC[pc];
+        g.appendChild(tx);
+        svg.appendChild(g);
+        dotMap.push({string:si,midi:(str.octave+1)*12+str.open+f,pc:pc,el:g});
+      }
+    });
+
+    // gradient def for "both" dots + glow circle
+    var defs=svgEl("defs");
+    var grad=svgEl("linearGradient",{id:"bothGrad",x1:"0",y1:"0",x2:"1",y2:"0"});
+    grad.appendChild(svgEl("stop",{offset:"50%","stop-color":"var(--minor)"}));
+    grad.appendChild(svgEl("stop",{offset:"50%","stop-color":"var(--major)"}));
+    defs.appendChild(grad);
+    svg.insertBefore(defs, svg.firstChild);
+
+    // glow circle (bend mode) — on top
+    var glow=svgEl("circle",{id:"glow",class:"glow-c"+(state.hlMode==="note"?" snap":""),cx:0,cy:0,r:18,fill:"none",stroke:"#3fb98a","stroke-width":3});
+    svg.appendChild(glow);
+  }
+
+  function buildLegend(){
+    var L=document.getElementById("legend");var items=[];
+    if(state.minor) items.push(['background:var(--minor)','минорная пентатоника']);
+    if(state.major) items.push(['background:var(--major)','мажорная пентатоника']);
+    if(state.minor&&state.major) items.push(['background:linear-gradient(90deg,var(--minor) 50%,var(--major) 50%)','общие ноты']);
+    items.push(['background:var(--minor);box-shadow:inset 0 0 0 2px #fff','тоника (обводка)']);
+    if(state.blue) items.push(['background:var(--blue)','блюзовая нота']);
+    if(state.full) items.push(['background:var(--diatonic)','остальные ноты гаммы']);
+    L.innerHTML=items.map(function(it){return '<span><i style="'+it[0]+'"></i>'+it[1]+'</span>';}).join("");
+  }
+
+  function clearLitDots(){
+    dotMap.forEach(function(d){ d.el.classList.remove("lit"); });
+  }
+
+  function placeGlow(midiFloat){
+    var glow=document.getElementById("glow");
+    if(state.hlMode==="note"){
+      if(glow) glow.classList.remove("show");
+      clearLitDots();
+      if(midiFloat==null) return;
+      var pc=((Math.round(midiFloat)%12)+12)%12;
+      dotMap.forEach(function(d){ if(d.pc===pc) d.el.classList.add("lit"); });
+      return;
+    }
+    // bend mode: single sliding glow following exact pitch
+    clearLitDots();
+    if(!glow) return;
+    if(midiFloat==null){glow.classList.remove("show");return;}
+    var best=null,bd=999;
+    dotMap.forEach(function(d){var dist=Math.abs(d.midi-midiFloat);if(dist<bd){bd=dist;best=d;}});
+    if(!best || bd>3){glow.classList.remove("show");return;}
+    var str=STRINGS[best.string];
+    var openMidi=(str.octave+1)*12+str.open;
+    var ff=Math.max(0,Math.min(FRETS,midiFloat-openMidi));
+    var cx = ff<=0 ? X0-22 : X0+(ff-0.5)*FRETW;
+    var cy = stringY(best.string);
+    glow.setAttribute("cx",cx); glow.setAttribute("cy",cy);
+    glow.classList.add("show");
+  }
+
+  // ================= AUDIO =================
+  var audioCtx,analyser,detector,inputBuf,raf,stream,running=false;
+  var A4=440;
+  var micBtn=document.getElementById("micBtn"),micLabel=document.getElementById("micLabel");
+  micBtn.disabled=false;micLabel.textContent="Включить микрофон";
+
+  micBtn.onclick=function(){
+    if(running){stop();return;}
+    navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,autoGainControl:false,noiseSuppression:false}})
+      .then(function(s){
+        stream=s;
+        audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+        analyser=audioCtx.createAnalyser();analyser.fftSize=2048;
+        inputBuf=new Float32Array(2048);
+        detector=PitchDetector.forFloat32Array(2048);
+        detector.minVolumeDecibels=-30;
+        audioCtx.createMediaStreamSource(stream).connect(analyser);
+        running=true;micBtn.classList.add("live");micLabel.textContent="Остановить";loop();
+      })
+      .catch(function(err){
+        micLabel.textContent=(err&&err.name==="NotAllowedError")?"Доступ запрещён — нужен HTTPS/localhost":"Ошибка: "+(err&&err.name||err);
+        console.error(err);
+      });
+  };
+  function stop(){
+    running=false;if(raf)cancelAnimationFrame(raf);
+    if(stream)stream.getTracks().forEach(function(t){t.stop()});
+    if(audioCtx)audioCtx.close();
+    micBtn.classList.remove("live");micLabel.textContent="Включить микрофон";
+    document.getElementById("glow").classList.remove("show");
+    clearLitDots();
+    document.getElementById("nowNote").textContent="—";
+    document.getElementById("nowFreq").textContent="— Hz";
+    document.getElementById("nowCents").textContent="";
+  }
+  function midiFloat(freq){return 69+12*Math.log2(freq/A4);}
+
+  function loop(){
+    analyser.getFloatTimeDomainData(inputBuf);
+    var res=detector.findPitch(inputBuf,audioCtx.sampleRate);
+    var freq=res[0],clarity=res[1];
+    var nN=document.getElementById("nowNote"),nF=document.getElementById("nowFreq"),nC=document.getElementById("nowCents");
+    var glow=document.getElementById("glow");
+    if(clarity<0.85||freq<70||freq>1300){
+      nN.textContent="—";nF.textContent="— Hz";nC.textContent="";nC.className="cents mono";
+      glow.classList.remove("show");
+      clearLitDots();
+    } else {
+      var mf=midiFloat(freq),near=Math.round(mf),cents=Math.round((mf-near)*100);
+      var pc=((near%12)+12)%12;
+      nN.innerHTML=CHROMATIC[pc]+'<span class="oct">'+(Math.floor(near/12)-1)+'</span>';
+      nF.textContent=freq.toFixed(1)+" Hz";
+      placeGlow(mf);
+      if(state.hlMode==="bend" && Math.abs(cents)>25){
+        glow.classList.add("bending");
+        nC.textContent="бенд "+(cents>0?"+":"")+cents+"¢";nC.className="cents mono bend";
+      } else {
+        glow.classList.remove("bending");
+        nC.textContent=(cents>=0?"+":"")+cents+"¢";nC.className="cents mono";
+      }
+    }
+    raf=requestAnimationFrame(loop);
+  }
+
+  render();
+
+  // re-fit the board when the window width changes (debounced)
+  var resizeTimer=null;
+  window.addEventListener("resize",function(){
+    clearTimeout(resizeTimer);
+    resizeTimer=setTimeout(render,120);
+  });
+})();
+</script>
+</body>
+</html>
